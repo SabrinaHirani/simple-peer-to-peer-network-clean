@@ -3,86 +3,140 @@ package node.rpc;
 import node.*;
 import main.*;
 
+import net.minidev.json.*;
 import com.thetransactioncompany.jsonrpc2.*;
+
+import graphics.*;
 
 public class Service {
 
-    public static JSONRPC2Response connect(JSONRPC2Request req) {
+    public static JSONRPC2Response connect(int port, JSONRPC2Request req) {
         
-        Peer newPeer = (Peer)(req.getNamedParams().get("new"));
-        Driver.networks.get(Driver.THIS_NETWORK).addPeer(newPeer);
+        String id = (String)((JSONObject) req.getNamedParams().get("new")).get("id");
+        String addr = (String)((JSONObject) req.getNamedParams().get("new")).get("addr");
+        Peer newPeer = new Peer(id, addr);
 
-        return new JSONRPC2Response(Driver.networks.get(Driver.THIS_NETWORK).getDHT(), req.getID());
+        Driver.networks.get(port).addPeer(newPeer);
+
+        return new JSONRPC2Response(Driver.networks.get(port).getDHT(), req.getID());
 
     }
 
-    public static JSONRPC2Response disconnect(JSONRPC2Request req) {
+    public static JSONRPC2Response disconnect(int port, JSONRPC2Request req) {
 
-        Peer deadPeer = (Peer)(req.getNamedParams().get("dead"));
+        String id = (String)((JSONObject) req.getNamedParams().get("dead")).get("id");
+        String addr = (String)((JSONObject) req.getNamedParams().get("dead")).get("addr");
+        Peer deadPeer = new Peer(id, addr);
 
-        if (Driver.networks.get(Driver.THIS_NETWORK).removePeer(deadPeer)) {
-            Client.gossip(req);
+        if (Driver.networks.get(port).removePeer(deadPeer)) {
+            Client.gossip(port, req);
         }
        
         return null;
     }
 
-    public static JSONRPC2Response find(JSONRPC2Request req) {
+    public static JSONRPC2Response find(int port, JSONRPC2Request req) {
 
-        Peer from = (Peer)(req.getNamedParams().get("from"));
-        Peer targetPeer = (Peer)(req.getNamedParams().get("dead"));
+        String id1 = (String)((JSONObject) req.getNamedParams().get("from")).get("id");
+        String addr1 = (String)((JSONObject) req.getNamedParams().get("from")).get("addr");
+        Peer from = new Peer(id1, addr1);
+
+        String id2 = (String)((JSONObject) req.getNamedParams().get("target")).get("id");
+        String addr2 = (String)((JSONObject) req.getNamedParams().get("target")).get("addr");
+        Peer targetPeer = new Peer(id2, addr2);
         
-        if (Driver.networks.get(Driver.THIS_NETWORK).getPeer(0).getId().equals(targetPeer.getId())) {
-            Client.found(from.getAddr());
-        } else if (Driver.networks.get(Driver.THIS_NETWORK).getPeer(targetPeer.getDistance()) != null) {
-            Client.forward(Driver.networks.get(Driver.THIS_NETWORK).getPeer(targetPeer.getDistance()).getAddr(), req);
+        if (Driver.networks.get(port).getPeer(0).getId().equals(targetPeer.getId())) {
+            Client.found(from.getAddr(), port);
+
+            Driver.networks.get(port).setNickName(from, "TO DO");
+            Driver.networks.get(port).addContact(from);
+            Main.reloadContacts();
+
+            Main.THIS_PEER = from;
+            Main.reloadMessages();
+
+            App.displayInfo("Contact added!");
+
+        } else if (Driver.networks.get(port).getPeer(targetPeer.getDistance()) != null) {
+            Client.forward(Driver.networks.get(port).getPeer(targetPeer.getDistance()).getAddr(), port, req);
         } else {
-            Client.notfound(from.getAddr());
+            Client.notfound(from.getAddr(), port);
         }
 
         return new JSONRPC2Response(true, req.getID());
 
     }
 
-    public static JSONRPC2Response found(JSONRPC2Request req) {
+    public static JSONRPC2Response found(int port, JSONRPC2Request req) {
 
-        //TODO alert found
+        Peer foundPeer = null;
+        try {
+            String id = (String)((JSONObject) req.getNamedParams().get("found")).get("id");
+            String addr = (String)((JSONObject) req.getNamedParams().get("found")).get("addr");
+            foundPeer = new Peer(id, addr);
+        } catch (NullPointerException e) {
+            //do nothing
+        }
 
-        //TODO add peer w/ null value to hist
+        if (foundPeer == null) {
 
-        //TODO reload main screen
+            App.displayInfo("Peer not found!");
+
+        } else {
+
+            String nn = Driver.networks.get(port).getNickName(foundPeer);
+            Driver.networks.get(port).setNickName(foundPeer, nn);
+            Driver.networks.get(port).addContact(foundPeer);
+            Main.reloadContacts();
+
+            Main.THIS_PEER = foundPeer;
+            Main.reloadMessages();
+
+            App.displayInfo("Contact added!");
+
+        }
 
         return null;
     }
 
-    public static JSONRPC2Response notfound(JSONRPC2Request req) {
+    public static JSONRPC2Response message(int port, JSONRPC2Request req) {
 
-        //TODO alert failed: peer not found
+        String id1 = (String)((JSONObject) ((JSONObject) req.getNamedParams().get("message")).get("from")).get("id");
+        String addr1 = (String)((JSONObject) ((JSONObject) req.getNamedParams().get("message")).get("from")).get("addr");
 
-        return null;
-    }
+        String id2 = (String)((JSONObject) ((JSONObject) req.getNamedParams().get("message")).get("to")).get("id");
+        String addr2 = (String)((JSONObject) ((JSONObject) req.getNamedParams().get("message")).get("to")).get("addr");
 
-    public static JSONRPC2Response message(JSONRPC2Request req) {
+        String text = (String)((JSONObject) req.getNamedParams().get("message")).get("message");
+
+        Message message = new Message(new Peer(id1, addr1), new Peer(id2, addr2), text);
         
-        //TODO save message by sender
-
-        //TODO reload main screen
+        Driver.networks.get(port).setMessagingHistory(new Peer(id1, id2), message);
+        Main.reloadMessages();
 
         return new JSONRPC2Response(true, req.getID());
 
     }
 
-    public static JSONRPC2Response broadcast(JSONRPC2Request req) {
+    public static JSONRPC2Response broadcast(int port, JSONRPC2Request req) {
 
-        //TODO check if message previously received
+        String id1 = (String)((JSONObject) ((JSONObject) req.getNamedParams().get("message")).get("from")).get("id");
+        String addr1 = (String)((JSONObject) ((JSONObject) req.getNamedParams().get("message")).get("from")).get("addr");
 
-        //if no:
+        String id2 = (String)((JSONObject) ((JSONObject) req.getNamedParams().get("message")).get("to")).get("id");
+        String addr2 = (String)((JSONObject) ((JSONObject) req.getNamedParams().get("message")).get("to")).get("addr");
 
-        //TODO save message w/ null key
+        String text = (String)((JSONObject) req.getNamedParams().get("message")).get("message");
 
-        //TODO reload main screen
+        Message message = new Message(new Peer(id1, addr1), new Peer(id2, addr2), text);
 
-        //TODO gossip req
+        if (!(Driver.networks.get(port).getMessagingHistory(message.getFrom()).pollLast().compareTo(message) == 0)) {
+
+            Driver.networks.get(port).setMessagingHistory(null, message);
+            Main.reloadMessages();
+            Client.gossip(port, req);
+
+        }
 
         return null;
     }

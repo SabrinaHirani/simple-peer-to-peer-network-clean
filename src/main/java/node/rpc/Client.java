@@ -2,6 +2,7 @@ package node.rpc;
 
 import node.*;
 import main.*;
+import net.minidev.json.JSONObject;
 
 import java.io.*;
 import java.net.*;
@@ -14,7 +15,7 @@ public class Client {
     private static int requestIdCount;
 
     @SuppressWarnings("unchecked")
-    public static void connect(String addr) {
+    public static void connect(String addr) throws JSONRPC2ParseException, SocketTimeoutException, UnknownHostException, IOException {
 
         String rpc = "connect";
         String id = "req-"+requestIdCount;
@@ -37,12 +38,15 @@ public class Client {
             if (res.getError() != null) {
                 throw new JSONRPC2ParseException(res.getError().toString());
             } else {
-                LinkedList<Peer>[] peerlist = (LinkedList<Peer>[]) res.getResult();
+                ArrayList<ArrayList<JSONObject>> peerlist = (ArrayList<ArrayList<JSONObject>>) res.getResult();
                 for (int i = 0; i <= 160; i++) {
-                    for (int j = 0; j < peerlist[i].size(); j++) {
-                        if (peerlist[i].get(j).ping()) {
-                            if (Driver.networks.get(Driver.THIS_NETWORK).addPeer(peerlist[i].get(j))) {
-                                Client.connect(peerlist[i].get(j).getAddr());
+                    for (int j = 0; j < peerlist.get(i).size(); j++) {
+                        String peerid = (String)((JSONObject) peerlist.get(i).get(j)).get("id");
+                        String peeraddr = (String)((JSONObject) peerlist.get(i).get(j)).get("addr");
+                        Peer thisPeer = new Peer(peerid, peeraddr);
+                        if (thisPeer.ping()) {
+                            if (Driver.networks.get(Driver.THIS_NETWORK).addPeer(thisPeer)) {
+                                Client.connect(thisPeer.getAddr());
                             }
                         }
                     }
@@ -55,19 +59,13 @@ public class Client {
                 //do nothing
             }
 
-        } catch (SocketTimeoutException|JSONRPC2ParseException e) {
-            //TODO alert failed: try again
-        } catch (UnknownHostException e) {
-            //TODO alert failed: peer does not exist
-        } catch (IOException e) {
-            //TODO alert failed
         }
 
         requestIdCount++;
 
     }
 
-    public static void disconnect() {
+    public static void disconnect(int port) {
 
         String rpc = "disconnect";
         String id = "";
@@ -81,7 +79,7 @@ public class Client {
 
     }
 
-    public static void disconnect(Peer deadPeer) {
+    public static void disconnect(int port, Peer deadPeer) {
 
         String rpc = "disconnect";
         String id = "";
@@ -91,11 +89,11 @@ public class Client {
 
         JSONRPC2Request req = new JSONRPC2Request(rpc, param, id);
 
-        Client.gossip(req);
+        Client.gossip(port, req);
 
     }
 
-    public static void find(Peer targetPeer) {
+    public static void find(Peer targetPeer) throws JSONRPC2ParseException, SocketTimeoutException, UnknownHostException, IOException {
 
         String rpc = "find";
         String id = "req-"+requestIdCount;
@@ -126,29 +124,23 @@ public class Client {
                 //do nothing
             }
 
-        } catch (JSONRPC2ParseException|SocketTimeoutException e) {
-            //TODO alert failed: try again
-        } catch (UnknownHostException e) {
-            //TODO alert failed: peer does not exist
-        } catch (IOException e) {
-            //TODO alert failed
         }
 
         requestIdCount++;
 
     }
 
-    public static void found(String addr) {
+    public static void found(String addr, int port) {
 
         String rpc = "found";
         String id = "";
 
         HashMap<String, Object> param = new HashMap<String, Object>();
-        param.put("found", Driver.networks.get(Driver.THIS_NETWORK).getPeer(0));
+        param.put("found", Driver.networks.get(port).getPeer(0));
 
         JSONRPC2Request req = new JSONRPC2Request(rpc, param, id);
 
-        try (Socket socket = new Socket(addr, Driver.THIS_NETWORK)) {
+        try (Socket socket = new Socket(addr, port)) {
             socket.setSoTimeout(300000);
 
             Writer writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8"));
@@ -163,7 +155,7 @@ public class Client {
 
     }
 
-    public static void notfound(String addr) {
+    public static void notfound(String addr, int port) {
 
         String rpc = "found";
         String id = "";
@@ -173,7 +165,7 @@ public class Client {
 
         JSONRPC2Request req = new JSONRPC2Request(rpc, param, id);
 
-        try (Socket socket = new Socket(addr, Driver.THIS_NETWORK)) {
+        try (Socket socket = new Socket(addr, port)) {
             socket.setSoTimeout(300000);
 
             Writer writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8"));
@@ -188,7 +180,7 @@ public class Client {
 
     }
 
-    public static void message(String addr, Message message) throws UnknownHostException, IOException {
+    public static void message(String addr, Message message) throws JSONRPC2ParseException, SocketTimeoutException, UnknownHostException, IOException {
 
         String rpc = "message";
         String id = "req-"+requestIdCount;
@@ -218,12 +210,6 @@ public class Client {
                 //do nothing
             }
 
-        } catch (JSONRPC2ParseException|SocketTimeoutException e) {
-            //TODO alert failed: try again
-        } catch (UnknownHostException e) {
-            //TODO alert failed: peer does not exist
-        } catch (IOException e) {
-            //TODO alert failed
         }
 
         requestIdCount++;
@@ -244,7 +230,7 @@ public class Client {
 
     }
 
-    public static void forward(String addr, JSONRPC2Request req) {
+    public static void forward(String addr, int port, JSONRPC2Request req) {
         try (Socket socket = new Socket(addr, Driver.THIS_NETWORK)) {
 
             Writer writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8"));
@@ -259,6 +245,24 @@ public class Client {
     }
 
     public static void gossip(JSONRPC2Request req) {
+        for (int i = 1; i <= 160; i++) {
+            for (int j = 0; j < Driver.networks.get(Driver.THIS_NETWORK).hasPeer(i); j++) {
+                try (Socket socket = new Socket(Driver.networks.get(Driver.THIS_NETWORK).getPeer(i, j).getAddr(), Driver.THIS_NETWORK)) {
+
+                    Writer writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8"));
+                    writer.write(req.toString()+"\r");
+                    writer.flush();
+        
+                    socket.close();
+        
+                } catch (IOException e) {
+                    //do nothing
+                }
+            }
+        }
+    }
+
+    public static void gossip(int port, JSONRPC2Request req) {
         for (int i = 1; i <= 160; i++) {
             for (int j = 0; j < Driver.networks.get(Driver.THIS_NETWORK).hasPeer(i); j++) {
                 try (Socket socket = new Socket(Driver.networks.get(Driver.THIS_NETWORK).getPeer(i, j).getAddr(), Driver.THIS_NETWORK)) {

@@ -88,13 +88,13 @@ public class Option extends JPanel implements ActionListener, MouseInputListener
 
     @Override
     public void mousePressed(MouseEvent e) {
-        // TODO Auto-generated method stub
+        //do nothing
         
     }
 
     @Override
     public void mouseReleased(MouseEvent e) {
-        // TODO Auto-generated method stub
+        //do nothing
         
     }
 
@@ -116,13 +116,13 @@ public class Option extends JPanel implements ActionListener, MouseInputListener
 
     @Override
     public void mouseDragged(MouseEvent e) {
-        // TODO Auto-generated method stub
+        //do nothing
         
     }
 
     @Override
     public void mouseMoved(MouseEvent e) {
-        // TODO Auto-generated method stub
+        //do nothing
         
     }
     

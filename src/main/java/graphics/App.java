@@ -55,14 +55,6 @@ public class App {
         JOptionPane.showOptionDialog(null, new JLabel(info, JLabel.CENTER), "Info", JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, new Object[]{}, null);
     }
 
-    public static void displayInvalid() {
-        JOptionPane.showOptionDialog(null, new JLabel("Invalid! Please ensure valid before trying again!", JLabel.CENTER), "Invalid", JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, new Object[]{}, null);
-    }
-
-    public static void displayInvalid(String invalid) {
-        JOptionPane.showOptionDialog(null, new JLabel("Invalid! "+invalid, JLabel.CENTER), "Invalid", JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, new Object[]{}, null);
-    }
-
     public static void enterNetwork() {
         main = new Main();
         app.add(main);

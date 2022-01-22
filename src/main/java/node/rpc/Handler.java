@@ -7,13 +7,15 @@ import com.thetransactioncompany.jsonrpc2.*;
 
 public class Handler implements Runnable {
 
+    private int PORT;
     private Socket connection;
 
     private JSONRPC2Request req;
     private JSONRPC2Response res;
 
-    public Handler(Socket connection) throws JSONRPC2ParseException, IOException {
+    public Handler(int port, Socket connection) throws JSONRPC2ParseException, IOException {
 
+        this.PORT = port;
         this.connection = connection;
 
         BufferedReader reader = new BufferedReader(new InputStreamReader(this.connection.getInputStream(), "UTF-8"));
@@ -24,36 +26,39 @@ public class Handler implements Runnable {
     @Override
     public void run() {
         
-        switch(req.getMethod()) {
-            case "connect":
-                res = Service.connect(req);
-            case "disconnect":
-                res = Service.disconnect(req);
-            case "find":
-                res = Service.find(req);
-            case "found":
-                res = Service.found(req);
-            case "message":
-                res = Service.message(req);
-            case "broadcast":
-                res = Service.broadcast(req);
-            default:
+        try {
+            if (req.getMethod().equals("connect")) {
+                res = Service.connect(this.PORT, req);
+            } else if  (req.getMethod().equals("disconnect")) {
+                res = Service.disconnect(this.PORT, req);
+            } else if (req.getMethod().equals("find")) {
+                res = Service.find(this.PORT, req);
+            } else if (req.getMethod().equals("found")) {
+                res = Service.found(this.PORT, req);
+            } else if (req.getMethod().equals("message")) {
+                res = Service.message(this.PORT, req);
+            } else if (req.getMethod().equals("broadcast")) {
+                res = Service.broadcast(this.PORT, req);
+            } else {
                 return;
+            }
+        } catch (NullPointerException e) {
+            return;
         }
 
-        // if (res != null) {
-        //     try {
+        if (res != null) {
+            try {
 
-        //         Writer writer = new BufferedWriter(new OutputStreamWriter(this.connection.getOutputStream(), "UTF-8"));
-        //         writer.write(this.res.toString()+"/r");
-        //         writer.flush();
+                Writer writer = new BufferedWriter(new OutputStreamWriter(this.connection.getOutputStream(), "UTF-8"));
+                writer.write(this.res.toString()+"/r");
+                writer.flush();
 
-        //         connection.close();
+                connection.close();
 
-        //     } catch (IOException e) {
-        //         //do nothing
-        //     }
-        // }
+            } catch (IOException e) {
+                //do nothing
+            }
+        }
         
     }
     

@@ -25,7 +25,10 @@ public class Peer {
     }
 
     public int getDistance() {
-        return 160-((new BigInteger(Driver.networks.get(Driver.THIS_NETWORK).getPeer(0).getId(), 2).xor(new BigInteger(this.id, 2))).toString(2).length());
+        if ((new BigInteger(Driver.networks.get(Driver.THIS_NETWORK).getPeer(0).getId(), 2).xor(new BigInteger(this.id, 2))).intValue() == 0) {
+            return 0;
+        }
+        return 161-((new BigInteger(Driver.networks.get(Driver.THIS_NETWORK).getPeer(0).getId(), 2).xor(new BigInteger(this.id, 2))).toString(2).length());
     }
 
     // public int getDistance(Peer peer) {
@@ -42,5 +45,19 @@ public class Peer {
             return false;
         }
     }
+
+    @Override
+    public int hashCode() {
+        return this.getDistance();
+    } 
+
+    @Override
+    public boolean equals(Object o) {
+        Peer peer = (Peer) o;
+        if (this.id.compareTo(peer.id) == 0) {
+            return true;
+        }
+        return false;
+    } 
     
 }

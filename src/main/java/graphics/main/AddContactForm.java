@@ -64,13 +64,24 @@ public class AddContactForm extends JPanel implements FocusListener {
 
     @Override
     public void focusGained(FocusEvent e) {
-        // TODO Auto-generated method stub
+        if (e.getSource() == nicknameField) {
+            nicknameField.setBackground(Color.decode(App.COLOR_BKG_DARK));
+        }
         
+        if (e.getSource() == idField) {
+            idField.setBackground(Color.decode(App.COLOR_BKG_DARK));
+        }
     }
 
     @Override
     public void focusLost(FocusEvent e) {
-        // TODO Auto-generated method stub
+        if (e.getSource() == nicknameField) {
+            nicknameField.setBackground(Color.decode(App.COLOR_BKG_DARKER));
+        }
+        
+        if (e.getSource() == idField) {
+            idField.setBackground(Color.decode(App.COLOR_BKG_DARKER));
+        }
         
     }
     

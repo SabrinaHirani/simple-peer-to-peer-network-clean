@@ -23,7 +23,7 @@ public class Server extends Thread {
         this.PORT = Driver.THIS_NETWORK;
 
         executor = Executors.newFixedThreadPool(4);
-        executor.submit(new PingService());
+        executor.submit(new PingService(this.PORT));
 
         this.server = new ServerSocket(this.PORT);
 
@@ -51,7 +51,7 @@ public class Server extends Thread {
             try {
                 Socket connection = server.accept();
                 try {
-                    executor.submit(new Handler(connection));
+                    executor.submit(new Handler(this.PORT, connection));
                 } catch (JSONRPC2ParseException|IOException e) {
                     //do nothing
                 }

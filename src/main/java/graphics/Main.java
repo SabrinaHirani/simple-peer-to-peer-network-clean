@@ -91,9 +91,9 @@ public class Main extends JPanel {
         StyleConstants.setFontSize(messageStyles, 12);
 
         try {
-            messenger.getDocument().insertString(messenger.getDocument().getLength(), String.format("Sabrina"), senderStyles);
-            messenger.getDocument().insertString(messenger.getDocument().getLength(), String.format("\t01/07/2022%n"), timestampStyles);
-            messenger.getDocument().insertString(messenger.getDocument().getLength(), String.format("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.%n%n"), messageStyles);
+            messenger.getDocument().insertString(messenger.getDocument().getLength(), String.format(Driver.networks.get(Driver.THIS_NETWORK).getNickName(message.getFrom())+""), senderStyles);
+            messenger.getDocument().insertString(messenger.getDocument().getLength(), String.format("\t"+message.getTimeStampReadable()+"\n"), timestampStyles);
+            messenger.getDocument().insertString(messenger.getDocument().getLength(), String.format(message.getMessage()+"\n\n\n"), messageStyles);
         } catch (BadLocationException e) {
             //do nothing
         }

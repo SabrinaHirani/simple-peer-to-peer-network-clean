@@ -4,6 +4,12 @@ import main.*;
 
 public class PingService implements Runnable {
 
+    private int PORT;
+
+    public PingService(int port) {
+        this.PORT = port;
+    }
+
     @Override
     public void run() {
 
@@ -19,6 +25,7 @@ public class PingService implements Runnable {
                 if (Driver.networks.get(Driver.THIS_NETWORK).hasPeer(i) > 0) {
                      if (!Driver.networks.get(Driver.THIS_NETWORK).getPeer(i).ping()) {
                          Driver.networks.get(Driver.THIS_NETWORK).removePeer(Driver.networks.get(Driver.THIS_NETWORK).getPeer(i));
+                         Client.disconnect(this.PORT, Driver.networks.get(Driver.THIS_NETWORK).getPeer(i));
                      }
                 }
             }
