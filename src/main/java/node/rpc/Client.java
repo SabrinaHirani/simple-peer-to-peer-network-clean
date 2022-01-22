@@ -2,12 +2,12 @@ package node.rpc;
 
 import node.*;
 import main.*;
-import net.minidev.json.JSONObject;
 
 import java.io.*;
 import java.net.*;
 import java.util.*;
 
+import net.minidev.json.*;
 import com.thetransactioncompany.jsonrpc2.*;
 
 public class Client {
@@ -28,7 +28,7 @@ public class Client {
         try (Socket socket = new Socket(addr, Driver.THIS_NETWORK)) {
             socket.setSoTimeout(300000);
 
-            Writer writer = new PrintWriter(socket.getOutputStream(), true);
+            Writer writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8"));
             writer.write(req.toString()+"\r");
             writer.flush();
 
@@ -59,8 +59,6 @@ public class Client {
                 //do nothing
             }
 
-        } catch (Exception e) {
-            e.printStackTrace();
         }
 
         requestIdCount++;
@@ -109,7 +107,7 @@ public class Client {
         try (Socket socket = new Socket(Driver.networks.get(Driver.THIS_NETWORK).getPeer(targetPeer.getDistance()).getAddr(), Driver.THIS_NETWORK)) {
             socket.setSoTimeout(300000);
 
-            Writer writer = new PrintWriter(socket.getOutputStream(), true);
+            Writer writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8"));
             writer.write(req.toString()+"\r");
             writer.flush();
 
@@ -145,7 +143,7 @@ public class Client {
         try (Socket socket = new Socket(addr, port)) {
             socket.setSoTimeout(300000);
 
-            Writer writer = new PrintWriter(socket.getOutputStream(), true);
+            Writer writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8"));
             writer.write(req.toString()+"\r");
             writer.flush();
 
@@ -170,7 +168,7 @@ public class Client {
         try (Socket socket = new Socket(addr, port)) {
             socket.setSoTimeout(300000);
 
-            Writer writer = new PrintWriter(socket.getOutputStream(), true);
+            Writer writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8"));
             writer.write(req.toString()+"\r");
             writer.flush();
 
@@ -195,7 +193,7 @@ public class Client {
         try (Socket socket = new Socket(addr, Driver.THIS_NETWORK)) {
             socket.setSoTimeout(300000);
 
-            Writer writer = new PrintWriter(socket.getOutputStream(), true);
+            Writer writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8"));
             writer.write(req.toString()+"\r");
             writer.flush();
 
@@ -235,7 +233,7 @@ public class Client {
     public static void forward(String addr, int port, JSONRPC2Request req) {
         try (Socket socket = new Socket(addr, Driver.THIS_NETWORK)) {
 
-            Writer writer = new PrintWriter(socket.getOutputStream(), true);
+            Writer writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8"));
             writer.write(req.toString()+"\r");
             writer.flush();
 
@@ -251,7 +249,7 @@ public class Client {
             for (int j = 0; j < Driver.networks.get(Driver.THIS_NETWORK).hasPeer(i); j++) {
                 try (Socket socket = new Socket(Driver.networks.get(Driver.THIS_NETWORK).getPeer(i, j).getAddr(), Driver.THIS_NETWORK)) {
 
-                    Writer writer = new PrintWriter(socket.getOutputStream(), true);
+                    Writer writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8"));
                     writer.write(req.toString()+"\r");
                     writer.flush();
         
@@ -269,7 +267,7 @@ public class Client {
             for (int j = 0; j < Driver.networks.get(Driver.THIS_NETWORK).hasPeer(i); j++) {
                 try (Socket socket = new Socket(Driver.networks.get(Driver.THIS_NETWORK).getPeer(i, j).getAddr(), Driver.THIS_NETWORK)) {
 
-                    Writer writer = new PrintWriter(socket.getOutputStream(), true);
+                    Writer writer = new BufferedWriter(new OutputStreamWriter(socket.getOutputStream(), "UTF-8"));
                     writer.write(req.toString()+"\r");
                     writer.flush();
         

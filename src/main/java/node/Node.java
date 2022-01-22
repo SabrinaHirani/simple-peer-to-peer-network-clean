@@ -32,8 +32,6 @@ public class Node {
         this.addr = in.readLine();
         this.id = new BigInteger((DigestUtils.sha1Hex(this.addr+LocalDateTime.now().toString()+Math.random())), 16).toString(2);
 
-        System.out.println(this.addr);
-
         this.DHT = new LinkedList[160+1];
         for (int i = 0; i <= 160; i++) {
             DHT[i] = new LinkedList<Peer>();

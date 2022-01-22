@@ -2,7 +2,9 @@ package graphics;
 
 import node.*;
 import main.*;
+import node.util.*;
 
+import java.util.*;
 import java.awt.*;
 import javax.swing.*;
 
@@ -65,7 +67,9 @@ public class Main extends JPanel {
     public static void reloadContacts() {
         contacts.removeAll();
         Contact.resetContactCount();
-        for (Peer contact: Driver.networks.get(Driver.THIS_NETWORK).getContacts()) {
+        ArrayList<Peer> contactList = new ArrayList<Peer>(Driver.networks.get(Driver.THIS_NETWORK).getContacts());
+        Collections.sort(contactList, new SortByLastSeen());
+        for (Peer contact: contactList) {
             contacts.add(new Contact(contact));
         }
         contacts.setPreferredSize(new Dimension(300, Contact.getContactCount()*65+10));

@@ -52,7 +52,6 @@ public class Server extends Thread {
                 Socket connection = server.accept();
                 try {
                     executor.submit(new Handler(this.PORT, connection));
-                    System.out.println("connection");
                 } catch (JSONRPC2ParseException|IOException e) {
                     //do nothing
                 }

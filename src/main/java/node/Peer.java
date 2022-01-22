@@ -6,7 +6,7 @@ import java.io.*;
 import java.net.*;
 import java.math.*;
 
-public class Peer {
+public class Peer implements Comparable<Peer> {
 
     private String id;
     private String addr;
@@ -58,6 +58,11 @@ public class Peer {
             return true;
         }
         return false;
+    }
+
+    @Override
+    public int compareTo(Peer peer) {
+        return peer.getDistance();
     } 
     
 }

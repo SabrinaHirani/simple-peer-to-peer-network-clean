@@ -4,15 +4,14 @@ import main.*;
 import node.*;
 import node.rpc.*;
 
+import java.io.*;
+import java.net.*;
 import java.awt.*;
 import javax.swing.*;
 
-import com.thetransactioncompany.jsonrpc2.JSONRPC2ParseException;
-
 import java.awt.event.*;
-import java.io.IOException;
-import java.net.SocketTimeoutException;
-import java.net.UnknownHostException;
+
+import com.thetransactioncompany.jsonrpc2.*;
 
 import graphics.*;
 
@@ -81,7 +80,7 @@ public class Editor extends JPanel implements ActionListener, FocusListener, Key
 
     @Override
     public void keyTyped(KeyEvent e) {
-        // TODO Auto-generated method stub
+        //do nothing
         
     }
 
@@ -95,7 +94,7 @@ public class Editor extends JPanel implements ActionListener, FocusListener, Key
 
     @Override
     public void keyReleased(KeyEvent e) {
-        // TODO Auto-generated method stub
+        //do nothing
         
     }
 

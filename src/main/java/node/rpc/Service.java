@@ -3,16 +3,17 @@ package node.rpc;
 import node.*;
 import main.*;
 
+import javax.swing.*;
+
 import net.minidev.json.*;
 import com.thetransactioncompany.jsonrpc2.*;
 
 import graphics.*;
+import graphics.main.*;
 
 public class Service {
 
     public static JSONRPC2Response connect(int port, JSONRPC2Request req) {
-
-        System.out.println("connect");
         
         String id = (String)((JSONObject) req.getNamedParams().get("new")).get("id");
         String addr = (String)((JSONObject) req.getNamedParams().get("new")).get("addr");
@@ -50,14 +51,18 @@ public class Service {
         if (Driver.networks.get(port).getPeer(0).getId().equals(targetPeer.getId())) {
             Client.found(from.getAddr(), port);
 
-            Driver.networks.get(port).setNickName(from, "TO DO");
+            int opt = JOptionPane.showConfirmDialog(null, new ConfirmContactForm(), "Confirm Contact", JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE);
+            if (opt == JOptionPane.OK_OPTION) {
+                Driver.networks.get(port).setNickName(from, "TO DO");
+            } else {
+                Driver.networks.get(port).setNickName(from, "unnamed");
+            }
+
             Driver.networks.get(port).addContact(from);
             Main.reloadContacts();
 
             Main.THIS_PEER = from;
             Main.reloadMessages();
-
-            App.displayInfo("Contact added!");
 
         } else if (Driver.networks.get(port).getPeer(targetPeer.getDistance()) != null) {
             Client.forward(Driver.networks.get(port).getPeer(targetPeer.getDistance()).getAddr(), port, req);
@@ -103,17 +108,17 @@ public class Service {
 
     public static JSONRPC2Response message(int port, JSONRPC2Request req) {
 
-        String id1 = (String)((JSONObject) ((JSONObject) req.getNamedParams().get("message")).get("from")).get("id");
-        String addr1 = (String)((JSONObject) ((JSONObject) req.getNamedParams().get("message")).get("from")).get("addr");
+        String id1 = (String)((JSONObject) ((JSONObject) req.getNamedParams().get("message")).get("to")).get("id");
+        String addr1 = (String)((JSONObject) ((JSONObject) req.getNamedParams().get("message")).get("to")).get("addr");
 
-        String id2 = (String)((JSONObject) ((JSONObject) req.getNamedParams().get("message")).get("to")).get("id");
-        String addr2 = (String)((JSONObject) ((JSONObject) req.getNamedParams().get("message")).get("to")).get("addr");
+        String id2 = (String)((JSONObject) ((JSONObject) req.getNamedParams().get("message")).get("from")).get("id");
+        String addr2 = (String)((JSONObject) ((JSONObject) req.getNamedParams().get("message")).get("from")).get("addr");
 
         String text = (String)((JSONObject) req.getNamedParams().get("message")).get("message");
 
         Message message = new Message(new Peer(id1, addr1), new Peer(id2, addr2), text);
         
-        Driver.networks.get(port).setMessagingHistory(new Peer(id1, id2), message);
+        Driver.networks.get(port).setMessagingHistory(message.getFrom(), message);
         Main.reloadMessages();
 
         return new JSONRPC2Response(true, req.getID());
