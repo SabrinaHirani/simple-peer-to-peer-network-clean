@@ -11,6 +11,8 @@ import graphics.*;
 public class Service {
 
     public static JSONRPC2Response connect(int port, JSONRPC2Request req) {
+
+        System.out.println("connect");
         
         String id = (String)((JSONObject) req.getNamedParams().get("new")).get("id");
         String addr = (String)((JSONObject) req.getNamedParams().get("new")).get("addr");
