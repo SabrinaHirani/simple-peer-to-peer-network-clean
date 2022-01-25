@@ -65,7 +65,7 @@ public class Main extends JPanel {
     public static void reloadContacts() {
         contacts.removeAll();
         Contact.resetContactCount();
-        for (Peer contact: Driver.networks.get(Driver.THIS_NETWORK).getContacts()) {
+        for (Peer contact: Node.getContacts()) {
             contacts.add(new Contact(contact));
         }
         contacts.setPreferredSize(new Dimension(300, Contact.getContactCount()*65+10));
@@ -91,9 +91,9 @@ public class Main extends JPanel {
         StyleConstants.setFontSize(messageStyles, 12);
 
         try {
-            messenger.getDocument().insertString(messenger.getDocument().getLength(), String.format("Sabrina"), senderStyles);
-            messenger.getDocument().insertString(messenger.getDocument().getLength(), String.format("\t01/07/2022%n"), timestampStyles);
-            messenger.getDocument().insertString(messenger.getDocument().getLength(), String.format("Lorem Ipsum is simply dummy text of the printing and typesetting industry. Lorem Ipsum has been the industry's standard dummy text ever since the 1500s, when an unknown printer took a galley of type and scrambled it to make a type specimen book. It has survived not only five centuries, but also the leap into electronic typesetting, remaining essentially unchanged. It was popularised in the 1960s with the release of Letraset sheets containing Lorem Ipsum passages, and more recently with desktop publishing software like Aldus PageMaker including versions of Lorem Ipsum.%n%n"), messageStyles);
+            messenger.getDocument().insertString(messenger.getDocument().getLength(), String.format(Node.getNickName(message.getFrom())+" "), senderStyles);
+            messenger.getDocument().insertString(messenger.getDocument().getLength(), String.format("\t"+message.getTimeStampReadable()+"\n"), timestampStyles);
+            messenger.getDocument().insertString(messenger.getDocument().getLength(), String.format(message.getMessage()+"\n\n"), messageStyles);
         } catch (BadLocationException e) {
             //do nothing
         }
@@ -101,7 +101,7 @@ public class Main extends JPanel {
 
     public static void reloadMessages() {
         messenger.setText("");
-        for (Message message: Driver.networks.get(Driver.THIS_NETWORK).getMessagingHistory(THIS_PEER)) {
+        for (Message message: Node.getMessagingHistory(THIS_PEER)) {
             Main.addMessage(message);
         }
     }

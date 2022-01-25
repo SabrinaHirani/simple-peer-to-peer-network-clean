@@ -14,38 +14,39 @@ import main.Driver;
 
 public class Node {
 
-    private String id;
-    private String addr;
+    public static int PORT=7000;
 
-    private LinkedList<Peer>[] DHT;
-    private HashMap<Peer, TreeSet<Message>> hist;
-    private HashMap<String, Peer> nicknamesByName;
-    private HashMap<Peer, String> nicknamesByPeer;
+    private static String id;
+    private static int addr;
 
-    private Server server;
+    private static LinkedList<Peer>[] DHT;
+    private static HashMap<Peer, TreeSet<Message>> hist;
+    private static HashMap<String, Peer> nicknamesByName;
+    private static HashMap<Peer, String> nicknamesByPeer;
+
+    private static Server server;
 
     @SuppressWarnings("unchecked")
     public Node() throws IllegalArgumentException, UnknownHostException, IOException {
 
-        URL whatismyip = new URL("http://checkip.amazonaws.com");
-        BufferedReader in = new BufferedReader(new InputStreamReader(whatismyip.openStream()));
-        this.addr = in.readLine();
-        this.id = new BigInteger((DigestUtils.sha1Hex(this.addr+LocalDateTime.now().toString()+Math.random())), 16).toString(2);
+        Node.id = new BigInteger((DigestUtils.sha1Hex(LocalDateTime.now().toString()+Math.random())), 16).toString(2);
+        Node.addr = PORT;
 
-        this.DHT = new LinkedList[160+1];
+        Node.DHT = new LinkedList[160+1];
         for (int i = 0; i <= 160; i++) {
             DHT[i] = new LinkedList<Peer>();
         }
-        this.DHT[0].add(new Peer(this.id, this.addr));
+        Node.DHT[0].add(new Peer(Node.id, Node.addr));
 
-        this.hist = new HashMap<Peer, TreeSet<Message>>();
-        this.hist.put(null, new TreeSet<Message>());
+        Node.hist = new HashMap<Peer, TreeSet<Message>>();
+        Node.hist.put(null, new TreeSet<Message>());
 
-        this.nicknamesByName = new HashMap<String, Peer>();
-        this.nicknamesByPeer = new HashMap<Peer, String>();
+        Node.nicknamesByName = new HashMap<String, Peer>();
+        Node.nicknamesByPeer = new HashMap<Peer, String>();
+        Node.setNickName(Node.getPeer(0), "Me");
 
-        this.server = new Server();
-        this.server.start();
+        Node.server = new Server();
+        Node.server.start();
 
     }
 
@@ -53,37 +54,37 @@ public class Node {
 
     //DHT
 
-    public int hasPeer(int dist) {
-        return this.DHT[dist].size();
+    public static int hasPeer(int dist) {
+        return Node.DHT[dist].size();
     }
 
-    public Peer getPeer(int dist) {
-        return this.DHT[dist].peek();
+    public static Peer getPeer(int dist) {
+        return Node.DHT[dist].peek();
     }
 
-    public Peer getPeer(int dist, int idx) {
-        return this.DHT[dist].get(idx);
+    public static Peer getPeer(int dist, int idx) {
+        return Node.DHT[dist].get(idx);
     }
 
-    public LinkedList<Peer>[] getDHT() {
-        return this.DHT;
+    public static LinkedList<Peer>[] getDHT() {
+        return Node.DHT;
     }
 
-    public boolean addPeer(Peer newPeer) {
+    public static boolean addPeer(Peer newPeer) {
         if (newPeer.ping()) {
             int dist = newPeer.getDistance();
-            if (!this.DHT[dist].contains(newPeer)) {
-                this.DHT[dist].add(newPeer);
+            if (!Node.DHT[dist].contains(newPeer)) {
+                Node.DHT[dist].add(newPeer);
                 return true;
             }
         }
         return false;
     }
 
-    public boolean removePeer(Peer deadPeer) {
+    public static boolean removePeer(Peer deadPeer) {
         if (!deadPeer.ping()) {
             int dist = deadPeer.getDistance();
-            return this.DHT[dist].remove(deadPeer);
+            return Node.DHT[dist].remove(deadPeer);
         }
         return false;
     }
@@ -92,43 +93,48 @@ public class Node {
 
     //messaging history
 
-    public String getNickName(Peer peer) {
-        return this.nicknamesByPeer.get(peer);
+    public static String getNickName(Peer peer) {
+        return Node.nicknamesByPeer.get(peer);
     }
 
-    public Peer getPeerByNickName(String name) {
-        return this.nicknamesByName.get(name);
+    public static Peer getPeerByNickName(String name) {
+        return Node.nicknamesByName.get(name);
     }
 
-    public void setNickName(Peer peer, String name) {
-        this.nicknamesByName.put(name, peer);
-        this.nicknamesByPeer.put(peer, name);
+    public static void setNickName(Peer peer, String name) {
+        Node.nicknamesByName.put(name, peer);
+        Node.nicknamesByPeer.put(peer, name);
     }
 
-    public Set<Peer> getContacts() {
-        return Driver.networks.get(Driver.THIS_NETWORK).hist.keySet();
+    public static Set<Peer> getContacts() {
+        return Node.hist.keySet();
     }
 
-    public void addContact(Peer newContact) {
-        this.hist.put(newContact, new TreeSet<Message>());
+    public static void addContact(Peer newContact) {
+        Node.hist.put(newContact, new TreeSet<Message>());
     }
 
-    public TreeSet<Message> getMessagingHistory(Peer peer) {
-        return this.hist.get(peer);
+    public static TreeSet<Message> getMessagingHistory(Peer peer) {
+        return Node.hist.get(peer);
     }
 
-    public void setMessagingHistory(Peer peer, Message message) {
-        TreeSet<Message> messages = this.hist.get(peer);
+    public static void setMessagingHistory(Peer peer, Message message) {
+        TreeSet<Message> messages = null;
+        try {
+            messages = Node.hist.get(peer);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         messages.add(message);
-        this.hist.put(peer, messages);
+        Node.hist.put(peer, messages);
     }
 
 
 
     //server
 
-    public void leave() {
-        this.server.stopServer();
+    public static void leave() {
+        Node.server.stopServer();
     }
     
 }

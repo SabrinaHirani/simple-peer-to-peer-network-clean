@@ -32,10 +32,6 @@ public class AddContactForm extends JPanel implements FocusListener {
 
         nicknameField.addFocusListener(this);
 
-        this.setPreferredSize(new Dimension(300, 90));
-        this.setBackground(Color.decode(App.COLOR_BKG_DARKER));
-        this.setLayout(null);
-
         JLabel idTag = new JLabel("Id: ");
         idTag.setBounds(20, 55, 80, 25);
         idTag.setFont(new Font("Fira Sans", Font.PLAIN, 12));
@@ -64,13 +60,24 @@ public class AddContactForm extends JPanel implements FocusListener {
 
     @Override
     public void focusGained(FocusEvent e) {
-        // TODO Auto-generated method stub
+        if (e.getSource() == nicknameField) {
+            nicknameField.setBackground(Color.decode(App.COLOR_BKG_DARK));
+        }
         
+        if (e.getSource() == idField) {
+            idField.setBackground(Color.decode(App.COLOR_BKG_DARK));
+        }
     }
 
     @Override
     public void focusLost(FocusEvent e) {
-        // TODO Auto-generated method stub
+        if (e.getSource() == nicknameField) {
+            nicknameField.setBackground(Color.decode(App.COLOR_BKG_DARKER));
+        }
+        
+        if (e.getSource() == idField) {
+            idField.setBackground(Color.decode(App.COLOR_BKG_DARKER));
+        }
         
     }
     

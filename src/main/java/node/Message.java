@@ -7,13 +7,13 @@ public class Message implements Comparable<Message> {
     private Peer to;
     private Peer from;
     private String message;
-    private Date timestamp;
+    private long timestamp;
 
     public Message(Peer to, Peer from, String message) {
         this.to = to;
         this.from = from;
         this.message = message;
-        this.timestamp = Calendar.getInstance().getTime();
+        this.timestamp = Calendar.getInstance().getTime().getTime();
     }
 
     public Peer getTo() {
@@ -28,16 +28,20 @@ public class Message implements Comparable<Message> {
         return this.message;
     }
 
-    public String getTimeStamp() {
-        return this.timestamp.toString();
+    public long getTimeStamp() {
+        return this.timestamp;
+    }
+
+    public String getTimeStampReadable() {
+        return new Date(this.timestamp).toString();
     }
 
     @Override
     public int compareTo(Message message) {
-        if (this.timestamp.getTime() - message.timestamp.getTime() == 0) {
+        if (this.timestamp - message.timestamp == 0) {
             return this.message.compareTo(message.message);
         }
-        return (int) (this.timestamp.getTime() - message.timestamp.getTime());
+        return (int) (this.timestamp - message.timestamp);
     }
     
 }

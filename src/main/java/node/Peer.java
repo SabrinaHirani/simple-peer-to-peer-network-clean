@@ -9,9 +9,9 @@ import java.math.*;
 public class Peer {
 
     private String id;
-    private String addr;
+    private int addr;
 
-    public Peer(String id, String addr) {
+    public Peer(String id, int addr) {
         this.id = id;
         this.addr = addr;
     }
@@ -20,12 +20,15 @@ public class Peer {
         return this.id;
     }
 
-    public String getAddr() {
+    public int getAddr() {
         return this.addr;
     }
 
     public int getDistance() {
-        return 160-((new BigInteger(Driver.networks.get(Driver.THIS_NETWORK).getPeer(0).getId(), 2).xor(new BigInteger(this.id, 2))).toString(2).length());
+        if ((new BigInteger(Node.getPeer(0).getId(), 2).xor(new BigInteger(this.id, 2))).intValue() == 0) {
+            return 0;
+        }
+        return 161-((new BigInteger(Node.getPeer(0).getId(), 2).xor(new BigInteger(this.id, 2))).toString(2).length());
     }
 
     // public int getDistance(Peer peer) {
@@ -35,12 +38,26 @@ public class Peer {
     public boolean ping() {
         try {
             try (Socket socket = new Socket()) {
-                socket.connect(new InetSocketAddress(this.addr, Driver.THIS_NETWORK), 5000);
+                socket.connect(new InetSocketAddress("0.0.0.0", this.addr), 5000);
                 return true;
             }
         } catch (IOException e) {
             return false;
         }
+    }
+
+    @Override
+    public int hashCode() {
+        return this.id.hashCode();
+    } 
+
+    @Override
+    public boolean equals(Object o) {
+        return this.id.equals(((Peer) o).getId());
+    } 
+
+    public String toString() {
+        return String.format("peer:{id:"+this.id+"     addr:"+this.addr+"}");
     }
     
 }

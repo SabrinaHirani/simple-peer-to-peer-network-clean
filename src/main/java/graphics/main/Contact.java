@@ -30,7 +30,7 @@ public class Contact extends JPanel implements MouseInputListener {
         this.setBorder(BorderFactory.createMatteBorder(0, 0, 1, 0, Color.decode(App.COLOR_EGGPLANT)));
         this.setLayout(null);
 
-        name = new JLabel(Driver.networks.get(Driver.THIS_NETWORK).getNickName(this.contact));
+        name = new JLabel(Node.getNickName(this.contact));
         name.setBounds(10, 10, 200, 15);
         name.setFont(new Font("Fira Sans Bold", Font.PLAIN, 13));
         name.setForeground(Color.decode(App.COLOR_MARZIPAN));
@@ -62,7 +62,8 @@ public class Contact extends JPanel implements MouseInputListener {
 
     @Override
     public void mouseClicked(MouseEvent e) {
-        // TODO Auto-generated method stub
+        Main.THIS_PEER = this.contact;
+        Main.reloadMessages();
     }
 
     @Override
@@ -79,25 +80,25 @@ public class Contact extends JPanel implements MouseInputListener {
 
     @Override
     public void mouseEntered(MouseEvent e) {
-        // TODO Auto-generated method stub
+        //do nothing
         
     }
 
     @Override
     public void mouseExited(MouseEvent e) {
-        // TODO Auto-generated method stub
+        //do nothing
         
     }
 
     @Override
     public void mouseDragged(MouseEvent e) {
-        // TODO Auto-generated method stub
+        //do nothing
         
     }
 
     @Override
     public void mouseMoved(MouseEvent e) {
-        // TODO Auto-generated method stub
+        //do nothing
         
     }
     

@@ -1,5 +1,6 @@
 package node.rpc;
 
+import node.*;
 import main.*;
 
 import java.io.*;
@@ -20,10 +21,9 @@ public class Server extends Thread {
 
     public Server() throws IllegalArgumentException, IOException {
 
-        this.PORT = Driver.THIS_NETWORK;
+        this.PORT = Node.PORT;
 
-        executor = Executors.newFixedThreadPool(4);
-        executor.submit(new PingService());
+        executor = Executors.newFixedThreadPool(3);
 
         this.server = new ServerSocket(this.PORT);
 

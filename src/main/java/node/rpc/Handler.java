@@ -17,43 +17,46 @@ public class Handler implements Runnable {
         this.connection = connection;
 
         BufferedReader reader = new BufferedReader(new InputStreamReader(this.connection.getInputStream(), "UTF-8"));
-        req = JSONRPC2Request.parse(reader.readLine());
+        req = JSONRPC2Request.parse(reader.readLine()+" ");
 
     }
 
     @Override
     public void run() {
         
-        switch(req.getMethod()) {
-            case "connect":
+        try {
+            if (req.getMethod().equals("connect")) {
                 res = Service.connect(req);
-            case "disconnect":
+            } else if  (req.getMethod().equals("disconnect")) {
                 res = Service.disconnect(req);
-            case "find":
+            } else if (req.getMethod().equals("find")) {
                 res = Service.find(req);
-            case "found":
+            } else if (req.getMethod().equals("found")) {
                 res = Service.found(req);
-            case "message":
+            } else if (req.getMethod().equals("message")) {
                 res = Service.message(req);
-            case "broadcast":
+            } else if (req.getMethod().equals("broadcast")) {
                 res = Service.broadcast(req);
-            default:
+            } else {
                 return;
+            }
+        } catch (NullPointerException e) {
+            return;
         }
 
-        // if (res != null) {
-        //     try {
+        if (res != null) {
+            try {
 
-        //         Writer writer = new BufferedWriter(new OutputStreamWriter(this.connection.getOutputStream(), "UTF-8"));
-        //         writer.write(this.res.toString()+"/r");
-        //         writer.flush();
+                Writer writer = new BufferedWriter(new OutputStreamWriter(this.connection.getOutputStream(), "UTF-8"));
+                writer.write(this.res.toString()+"/r");
+                writer.flush();
 
-        //         connection.close();
+                connection.close();
 
-        //     } catch (IOException e) {
-        //         //do nothing
-        //     }
-        // }
+            } catch (IOException e) {
+                //do nothing
+            }
+        }
         
     }
     

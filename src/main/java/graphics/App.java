@@ -7,7 +7,6 @@ import javax.swing.*;
 public class App {
 
     private static JFrame app = null;
-    private static JPanel home = null;
     private static JPanel main = null;
 
     public static final String COLOR_BONFIRE = "#ff9e33";
@@ -43,8 +42,8 @@ public class App {
             //do nothing
          }
 
-        home = new Home();
-        app.add(home);
+        main = new Main();
+        app.add(main);
         
         app.pack();
         app.setVisible(true);
@@ -61,23 +60,6 @@ public class App {
 
     public static void displayInvalid(String invalid) {
         JOptionPane.showOptionDialog(null, new JLabel("Invalid! "+invalid, JLabel.CENTER), "Invalid", JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE, null, new Object[]{}, null);
-    }
-
-    public static void enterNetwork() {
-        main = new Main();
-        app.add(main);
-        app.remove(home);
-
-        app.revalidate();
-        app.repaint();
-    }
-
-    public static void exitNetwork() {
-        app.add(home);
-        app.remove(main);
-        
-        app.revalidate();
-        app.repaint();
     }
     
 }

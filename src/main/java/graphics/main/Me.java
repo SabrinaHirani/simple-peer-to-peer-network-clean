@@ -1,12 +1,21 @@
 package graphics.main;
 
 import main.*;
+import node.*;
+import node.rpc.*;
 
 import java.awt.*;
 import javax.swing.*;
 
 import java.awt.event.*;
+import java.io.IOException;
+import java.net.SocketTimeoutException;
+import java.net.UnknownHostException;
+
 import javax.swing.event.*;
+
+import com.thetransactioncompany.jsonrpc2.JSONRPC2ParseException;
+
 import java.awt.datatransfer.*;
 
 import graphics.*;
@@ -32,7 +41,7 @@ public class Me extends JPanel implements ActionListener, MouseInputListener {
         me.setForeground(Color.decode(App.COLOR_BKG_LIGHT));
         this.add(me);
 
-        id = new JLabel("101101010101010101010101010000011111111111...");
+        id = new JLabel(Node.getPeer(0).getId().substring(0, 43)+"...");
         id.setBounds(100, 55, 200, 10);
         id.setFont(new Font("Fira Sans Light", Font.PLAIN, 10));
         id.setForeground(Color.decode(App.COLOR_MARZIPAN));
@@ -66,12 +75,17 @@ public class Me extends JPanel implements ActionListener, MouseInputListener {
         if (e.getSource() == add) {
             int opt = JOptionPane.showConfirmDialog(null, new AddContactForm(), "Add Contact", JOptionPane.DEFAULT_OPTION, JOptionPane.PLAIN_MESSAGE);
             if (opt == JOptionPane.OK_OPTION) {
-                //do something
+                Node.setNickName(new Peer(AddContactForm.getId(), -1), AddContactForm.getNickName());
+                try {
+                Client.find(new Peer(AddContactForm.getId(), -1));
+                } catch (Exception e1) {
+                    e1.printStackTrace();
+                }
             }
         }
 
         if (e.getSource() == exit) {
-            App.exitNetwork();
+            
         }
         
     }
@@ -79,43 +93,43 @@ public class Me extends JPanel implements ActionListener, MouseInputListener {
     @Override
     public void mouseClicked(MouseEvent e) {
         Clipboard clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
-        clipboard.setContents(new StringSelection(Driver.networks.get(Driver.THIS_NETWORK).getPeer(0).getId()), null);
+        clipboard.setContents(new StringSelection(Node.getPeer(0).getId()), null);
         App.displayInfo("User ID copied!");
     }
 
     @Override
     public void mousePressed(MouseEvent e) {
-        // TODO Auto-generated method stub
+        //do nothing
         
     }
 
     @Override
     public void mouseReleased(MouseEvent e) {
-        // TODO Auto-generated method stub
+        //do nothing
         
     }
 
     @Override
     public void mouseEntered(MouseEvent e) {
-        // TODO Auto-generated method stub
+        //do nothing
         
     }
 
     @Override
     public void mouseExited(MouseEvent e) {
-        // TODO Auto-generated method stub
+        //do nothing
         
     }
 
     @Override
     public void mouseDragged(MouseEvent e) {
-        // TODO Auto-generated method stub
+        //do nothing
         
     }
 
     @Override
     public void mouseMoved(MouseEvent e) {
-        // TODO Auto-generated method stub
+        //do nothing
         
     }
     
